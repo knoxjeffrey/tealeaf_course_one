@@ -52,10 +52,14 @@ def calculator
   when '3', 'Multiply'
     result = num1.to_f * num2.to_f
   when '4', 'Divide'
-    result = num1.to_f / num2.to_f
+    if num2 == '0'
+      result = "You cannot divide by zero"
+    else
+      result = num1.to_f / num2.to_f
+    end
   end
 
-  print_string "The result is #{result}"
+  print_string "The result is: #{result}"
 end
 
 begin
