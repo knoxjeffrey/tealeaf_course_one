@@ -1,7 +1,11 @@
-def check_valid_number_entered(number_selected)
-  if !$grid_slots_available.include?(number_selected.to_i)
+def the_empty_positions
+  $game_inputs.select { |k,v| v == ' ' }.keys
+end
+
+def check_valid_entry(number_selected)
+  if !the_empty_positions.include?(number_selected.to_i)
     puts "Invalid choice or that position is already taken.  Please try again."
-  else $grid_slots_available.include?(number_selected.to_i)
+  else
     true
   end
 end
@@ -21,57 +25,44 @@ def display_grid
      |     |     "
 end
 
-def is_a_win_or_tie?
-  if $player_winner
+def a_winning_combo?(player_or_computer_array)
+  answer = false
+  sorted_array = player_or_computer_array.sort
+  WINNING_COMBOS.each do |array|
+    if sorted_array.combination(3).to_a.include?(array)
+      answer = true
+    end
+  end
+  answer
+end
+
+def game_over?
+  if a_winning_combo?($player_moves_made)
     puts "Player won!"
     true
-  elsif $computer_winner
+  elsif a_winning_combo?($computer_moves_made)
     puts "Computer won!"
     true
-  elsif $grid_slots_available.empty?
+  elsif the_empty_positions.empty?
     puts "It's a tie"
     true
   end
 end
-
-WINNING_COMBOS = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[3,5,7],[1,5,9]]
-$game_inputs = { 1 => ' ', 2 => ' ', 3 => ' ', 4 => ' ', 5 => ' ', 6 => ' ', 7 => ' ', 8 => ' ', 9 => ' '}
-$grid_slots_available = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-$player_moves_made = []
-$computer_moves_made =[]
-$player_winner = false
-$computer_winner = false
-$ame_over = false
 
 def play_tic_tac_toe 
   display_grid   
   begin
     puts "Choose a position (from 1 to 9) to place your piece"
     player_choice = gets.chomp
-  end while !check_valid_number_entered(player_choice)
+  end while !check_valid_entry(player_choice)
 
-  $grid_slots_available.delete(player_choice.to_i)
   $game_inputs[player_choice.to_i] = 'x'
   $player_moves_made << player_choice.to_i
-  
-  sorted_player_array = $player_moves_made.sort
-  WINNING_COMBOS.each do |array|
-    if sorted_player_array.combination(3).to_a.include?(array)
-      $player_winner = true
-    end
-  end
 
-  if !$player_winner && !$grid_slots_available.empty?
-    computer_choice = $grid_slots_available.sample
-    $grid_slots_available.delete(computer_choice)
+  if !$player_winner && !the_empty_positions.empty?
+    computer_choice = the_empty_positions.sample
     $game_inputs[computer_choice] = 'o'
     $computer_moves_made << computer_choice
-    sorted_computer_array = $computer_moves_made.sort
-    WINNING_COMBOS.each do |array|
-      if sorted_computer_array.combination(3).to_a.include?(array)
-        $computer_winner = true
-      end
-    end
   end
 
   puts `clear`
@@ -79,7 +70,12 @@ def play_tic_tac_toe
   display_grid
 end
 
+WINNING_COMBOS = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[3,5,7],[1,5,9]]
+$game_inputs = { 1 => ' ', 2 => ' ', 3 => ' ', 4 => ' ', 5 => ' ', 6 => ' ', 7 => ' ', 8 => ' ', 9 => ' '}
+$player_moves_made = []
+$computer_moves_made =[]
+
 begin
   puts `clear`
   play_tic_tac_toe 
-end while !is_a_win_or_tie?
+end while !game_over?
