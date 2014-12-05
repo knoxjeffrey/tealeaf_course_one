@@ -59,7 +59,7 @@ def play_tic_tac_toe
   $game_inputs[player_choice.to_i] = 'x'
   $player_moves_made << player_choice.to_i
 
-  if !$player_winner && !the_empty_positions.empty?
+  if !a_winning_combo?($player_moves_made) && !the_empty_positions.empty?
     computer_choice = the_empty_positions.sample
     $game_inputs[computer_choice] = 'o'
     $computer_moves_made << computer_choice
