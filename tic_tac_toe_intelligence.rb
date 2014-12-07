@@ -50,19 +50,13 @@ def game_over?(current_game_inputs, players_moves, computer_moves)
 end
 
 def clever_computer_move(current_game_inputs, current_player_moves,current_computer_moves)
-  answer_found = false
-  result = ' '
-  
-  if attack_and_defend_moves(current_game_inputs, current_computer_moves) != ' ' && !answer_found
-    result = attack_and_defend_moves(current_game_inputs, current_computer_moves)
-    answer_found = true
-  elsif attack_and_defend_moves(current_game_inputs, current_player_moves) != ' ' && !answer_found
-    result = attack_and_defend_moves(current_game_inputs, current_player_moves)
-    answer_found = true
-  elsif !answer_found
-    result = the_empty_positions(current_game_inputs).sample
+  if attack_and_defend_moves(current_game_inputs, current_computer_moves) != ' '
+    return attack_and_defend_moves(current_game_inputs, current_computer_moves)
+  elsif attack_and_defend_moves(current_game_inputs, current_player_moves) != ' '
+    return attack_and_defend_moves(current_game_inputs, current_player_moves)
+  else
+    return the_empty_positions(current_game_inputs).sample
   end
-  result
 end
 
 def attack_and_defend_moves(current_game_inputs, current_player_or_computer_moves)
