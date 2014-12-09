@@ -1,18 +1,16 @@
-class String
-  def valid_choice?
-      if ['p', 'r', 's'].include?(self)
-        true
-      else
-        print_string "Enter a valid choice. Please try again"
-      end
-  end
-  
-  def valid_decision?
-    if ['y', 'n'].include?(self)
+def valid_choice?(choice)
+    if ['p', 'r', 's'].include?(choice.downcase)
       true
     else
-      print_string "You must enter Y or N. Please try again"
+      print_string "Enter a valid choice. Please try again"
     end
+end
+
+def valid_decision?(the_decision)
+  if ['y', 'n'].include?(the_decision.downcase)
+    return true
+  else
+    print_string "You must enter Y or N. Please try again"
   end
 end
 
@@ -38,7 +36,7 @@ def paper_rock_scissor
   begin
   print_string "Choose one: P/R/S"
   choice = chomp_it
-  end while !choice.downcase.valid_choice?
+  end while !valid_choice?(choice)
 
   computer_pick = CHOICES.values.sample
   player_pick = CHOICES[choice.downcase.to_sym]
@@ -56,6 +54,6 @@ begin
   begin
     print_string "Would you like to play again?: Y or N"
     decision = chomp_it
-  end while !decision.downcase.valid_decision?
+  end while !valid_decision?(decision)
   
 end while decision.downcase == 'y'
