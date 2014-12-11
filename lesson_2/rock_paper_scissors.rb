@@ -82,8 +82,8 @@ class GameFlow
       TextAndInputs.print_string "You are playing Rock Paper Scissors against #{computer.name}"
   
       begin
-      TextAndInputs.print_string "Choose one: P/R/S"
-      choice = TextAndInputs.chomp_it
+        TextAndInputs.print_string "Choose one: P/R/S"
+        choice = TextAndInputs.chomp_it
       end while !TextAndInputs.valid_choice?(choice)
   
       player_pick = player.make_choice(choice)
