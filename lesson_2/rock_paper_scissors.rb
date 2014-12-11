@@ -8,11 +8,11 @@ module TextAndInputs
   end
 
   def self.valid_choice?(choice)
-      if ['p', 'r', 's'].include?(choice.downcase)
-        true
-      else
-        print_string "Enter a valid choice. Please try again"
-      end
+    if ['p', 'r', 's'].include?(choice.downcase)
+      true
+    else
+      print_string "Enter a valid choice. Please try again"
+    end
   end
 
   def self.valid_decision?(the_decision)
