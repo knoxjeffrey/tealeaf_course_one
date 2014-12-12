@@ -1,5 +1,5 @@
 module NumberInput
-  def self.check_valid_entry(number_selected, empty_grid_positions)
+  def self.check_number_chosen(number_selected, empty_grid_positions)
     if !empty_grid_positions.include?(number_selected.to_i)
       puts "Invalid choice or that position is already taken. Please try again."
     else
@@ -9,7 +9,6 @@ module NumberInput
 end
 
 module TextFormat
-  
   def self.print_string(text)
     puts "\n*** #{text} ***"
   end
@@ -42,6 +41,10 @@ class TicTacToe
        |     |
     #{game_inputs[7]}  |  #{game_inputs[8]}  |  #{game_inputs[9]}
        |     |     "
+  end
+  
+  def fill_grid_position(board_position, marker)
+    game_inputs[board_position] = marker
   end
   
   def return_empty_positions
@@ -77,7 +80,8 @@ end
 
 class Computer < Player
   
-  def clever_move(current_game_inputs, current_player_moves, empty_positions)
+  #first checks if the computer can attack, then checks defensive moves.  If neither of these then just a random move
+  def find_a_clever_move(current_game_inputs, current_player_moves, empty_positions)
     if attack_and_defend_moves(current_game_inputs, moves_made) != ' '
       return attack_and_defend_moves(current_game_inputs, moves_made)
     elsif attack_and_defend_moves(current_game_inputs, current_player_moves) != ' '
@@ -86,7 +90,9 @@ class Computer < Player
       return empty_positions.sample
     end
   end
-
+  
+  private
+  
   def attack_and_defend_moves(current_game_inputs, current_player_or_computer_moves)
     result = ' '
     TicTacToe::WINNING_COMBOS.each do |array|
@@ -112,7 +118,7 @@ class GameFlow
   def initialize
     @ttt = TicTacToe.new
     @player = Player.new('Jeff', 'X')
-    @computer = Computer.new('Watson', 'O')
+    @computer = Computer.new('Kryton', 'O')
   end
   
   def play
@@ -125,14 +131,14 @@ class GameFlow
         TextFormat.print_string "Choose a position (from 1 to 9) to place your piece"
         player_choice = TextFormat.chomp_it
         list_of_empty_grid_positions = ttt.return_empty_positions
-      end while !NumberInput.check_valid_entry(player_choice, list_of_empty_grid_positions)
-    
-      ttt.game_inputs[player_choice.to_i] = player.marker
+      end while !NumberInput.check_number_chosen(player_choice, list_of_empty_grid_positions)
+      
+      ttt.fill_grid_position(player_choice.to_i, player.marker)
       player.make_game_move(player_choice.to_i)
     
       if !ttt.a_winning_combo?(player.moves_made) && !ttt.return_empty_positions.empty?
-        computer_choice = computer.clever_move(ttt.game_inputs, player.moves_made, ttt.return_empty_positions)
-        ttt.game_inputs[computer_choice] = computer.marker
+        computer_choice = computer.find_a_clever_move(ttt.game_inputs, player.moves_made, ttt.return_empty_positions)
+        ttt.fill_grid_position(computer_choice.to_i, computer.marker)
         computer.make_game_move(computer_choice)
       end
     
