@@ -15,7 +15,7 @@ module TextAndInputs
     end
   end
 
-  def self.valid_decision?(the_decision)
+  def self.play_again?(the_decision)
     if ['y', 'n'].include?(the_decision.downcase)
       return true
     else
@@ -53,14 +53,14 @@ class Player
     @name = name
   end
   
-  def make_choice(selection)
+  def choose_hand_to_play(selection)
     RockPaperScissors::CHOICES[selection.downcase.to_sym]
   end
 end
 
 class Computer < Player
   
-  def make_choice
+  def choose_hand_to_play
     RockPaperScissors::CHOICES.values.sample
   end
 end
@@ -86,8 +86,8 @@ class GameFlow
         choice = TextAndInputs.chomp_it
       end while !TextAndInputs.valid_choice?(choice)
   
-      player_pick = player.make_choice(choice)
-      computer_pick = computer.make_choice
+      player_pick = player.choose_hand_to_play(choice)
+      computer_pick = computer.choose_hand_to_play
   
       TextAndInputs.print_string "#{player.name} picked #{player_pick} and #{computer.name} picked #{computer_pick}"
       case rps.result(player_pick, computer_pick)
@@ -102,7 +102,7 @@ class GameFlow
       begin
         TextAndInputs.print_string "Would you like to play again?: Y or N"
         decision = TextAndInputs.chomp_it
-      end while !TextAndInputs.valid_decision?(decision)
+      end while !TextAndInputs.play_again?(decision)
   
     end while decision.downcase == 'y'
   end
