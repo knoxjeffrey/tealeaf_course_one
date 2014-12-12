@@ -1,3 +1,7 @@
+require 'pry'
+require 'active_support'
+require 'active_support/core_ext/object/blank'
+
 module NumberInput
   def self.check_number_chosen(number_selected, empty_grid_positions)
     if !empty_grid_positions.include?(number_selected.to_i)
@@ -80,11 +84,13 @@ end
 
 class Computer < Player
   
-  #first checks if the computer can attack, then checks defensive moves.  If neither of these then just a random move
+  #use attack_and_defend_moves to check if the computer can make a winning move or stop the player making a winning move. 
+  #If neither of these then just a random move
   def find_a_clever_move(current_game_inputs, current_player_moves, empty_positions)
-    if attack_and_defend_moves(current_game_inputs, moves_made) != ' '
+    #blank? is used to if the returned result is ' '
+    if !attack_and_defend_moves(current_game_inputs, moves_made).blank?
       return attack_and_defend_moves(current_game_inputs, moves_made)
-    elsif attack_and_defend_moves(current_game_inputs, current_player_moves) != ' '
+    elsif !attack_and_defend_moves(current_game_inputs, current_player_moves).blank?
       return attack_and_defend_moves(current_game_inputs, current_player_moves)
     else
       return empty_positions.sample
@@ -96,27 +102,45 @@ class Computer < Player
   def attack_and_defend_moves(current_game_inputs, current_player_or_computer_moves)
     result = ' '
     TicTacToe::WINNING_COMBOS.each do |array|
+      #for each winning combo we check to see if the player/computer has any matches and all the matches are returned as an array
       computer_matches = array & current_player_or_computer_moves
-    
+      
+      #if there are 2 matches against the winning combo then getting 3 in a row is possible
       if computer_matches.size == 2
-        answer = array - current_player_or_computer_moves
-        value_in_this_space = current_game_inputs.values_at(answer[0])
-        if value_in_this_space[0] == " "
-          result =  answer[0]
-        end
+        #result returns the winning or defensive move
+        result = fill_space_to_make_three_in_a_row(array, current_game_inputs, current_player_or_computer_moves)
       end
+      
     end
+    #if there are no matches then result will remain at ' '
     result
   end
+  
+  def fill_space_to_make_three_in_a_row(winning_combo_array, current_game_inputs, array_of_player)
+    #answer is an array of the one number in the winning_combo array that isn't in the player/computer array. This is the 
+    #winning/defensive move to make if the space is free
+    answer = winning_combo_array - array_of_player
+    #check game inputs to see what is is the grid position given by answer
+    value_in_this_space = current_game_inputs.values_at(answer[0])
+    
+    #if the space is empty then return that space as being playable and if not then return ' '
+    if value_in_this_space[0] == " "
+      return answer[0]
+    else
+      return ' '
+    end
+  end
+
+  
 end
 
 class GameFlow
   include TextFormat
   
-  attr_reader :ttt, :player, :computer
+  attr_reader :game, :player, :computer
   
   def initialize
-    @ttt = TicTacToe.new
+    @game = TicTacToe.new
     @player = Player.new('Jeff', 'X')
     @computer = Computer.new('Kryton', 'O')
   end
@@ -125,37 +149,37 @@ class GameFlow
     begin
       puts `clear`
       TextFormat.print_string "You are playing Tic Tac Toe against #{computer.name}"
-      ttt.display_grid
+      game.display_grid
     
       begin
         TextFormat.print_string "Choose a position (from 1 to 9) to place your piece"
         player_choice = TextFormat.chomp_it
-        list_of_empty_grid_positions = ttt.return_empty_positions
+        list_of_empty_grid_positions = game.return_empty_positions
       end while !NumberInput.check_number_chosen(player_choice, list_of_empty_grid_positions)
       
-      ttt.fill_grid_position(player_choice.to_i, player.marker)
+      game.fill_grid_position(player_choice.to_i, player.marker)
       player.make_game_move(player_choice.to_i)
-    
-      if !ttt.a_winning_combo?(player.moves_made) && !ttt.return_empty_positions.empty?
-        computer_choice = computer.find_a_clever_move(ttt.game_inputs, player.moves_made, ttt.return_empty_positions)
-        ttt.fill_grid_position(computer_choice.to_i, computer.marker)
+
+      if !game.a_winning_combo?(player.moves_made) && !game.return_empty_positions.empty?
+        computer_choice = computer.find_a_clever_move(game.game_inputs, player.moves_made, game.return_empty_positions)
+        game.fill_grid_position(computer_choice.to_i, computer.marker)
         computer.make_game_move(computer_choice)
       end
     
       puts `clear`
 
-      ttt.display_grid
+      game.display_grid
     end while !game_results 
   end
   
   def game_results
-    if ttt.a_winning_combo?(player.moves_made)
+    if game.a_winning_combo?(player.moves_made)
       puts "Well done #{player.name}, you won!"
       true
-    elsif ttt.a_winning_combo?(computer.moves_made)
+    elsif game.a_winning_combo?(computer.moves_made)
       puts "Sorry #{player.name}, #{computer.name} has won"
       true
-    elsif ttt.return_empty_positions.empty?
+    elsif game.return_empty_positions.empty?
       puts "It's a tie, try again #{player.name}"
       true
     end
